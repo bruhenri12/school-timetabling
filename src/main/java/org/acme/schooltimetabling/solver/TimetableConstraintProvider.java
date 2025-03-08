@@ -11,6 +11,8 @@ import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 import ai.timefold.solver.core.api.score.stream.Joiners;
 
+import java.time.Duration;
+
 public class TimetableConstraintProvider implements ConstraintProvider {
 
     @Override
@@ -20,6 +22,9 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 roomConflict(constraintFactory),
                 teacherConflict(constraintFactory),
                 studentGroupConflict(constraintFactory),
+                // Soft constraints
+                teacherRoomPreference(constraintFactory),
+                teacherSequentialPreference(constraintFactory)
         };
     }
 
@@ -57,4 +62,28 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 .asConstraint("Student group conflict");
     }
 
+    Constraint teacherRoomPreference(ConstraintFactory constraintFactory) {
+        // A teacher prefers to teach in a single room.
+        return constraintFactory
+                .forEachUniquePair(Lesson.class, Joiners.equal(Lesson::getTeacher))
+                .filter((lesson1, lesson2) -> lesson1.getRoom() != lesson2.getRoom())
+                .penalize(HardSoftScore.ONE_SOFT)
+                .asConstraint("Teacher room preference");
+    }
+
+    Constraint teacherSequentialPreference(ConstraintFactory constraintFactory) {
+        // A teacher prefers to teach sequential lessons and dislikes gaps between lessons.
+        return constraintFactory
+                .forEach(Lesson.class)
+                .join(Lesson.class, 
+                        Joiners.equal(Lesson::getTeacher),
+                        Joiners.equal((lesson) -> lesson.getTimeslot().getDayOfWeek()))
+                .filter((lesson1, lesson2) -> {
+                    Duration between = Duration.between(lesson1.getTimeslot().getEndTime(),
+                            lesson2.getTimeslot().getStartTime());
+                    return !between.isNegative() && between.compareTo(Duration.ofMinutes(30)) <= 0;
+                })
+                .reward(HardSoftScore.ONE_SOFT)
+                .asConstraint("Teacher sequential preference");
+    }
 }
