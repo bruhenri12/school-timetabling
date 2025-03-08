@@ -1,5 +1,9 @@
 package org.acme.schooltimetabling.solver;
 
+/*  
+ * Credits: This file is built oriented with the TimeFold "Hello World" Quick Start Guide
+ */
+
 import org.acme.schooltimetabling.domain.Lesson;
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
@@ -16,7 +20,6 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 roomConflict(constraintFactory),
                 teacherConflict(constraintFactory),
                 studentGroupConflict(constraintFactory),
-                // Soft constraints are only implemented in the timefold-quickstarts code
         };
     }
 

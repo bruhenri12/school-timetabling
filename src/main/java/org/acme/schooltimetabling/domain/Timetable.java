@@ -1,5 +1,9 @@
 package org.acme.schooltimetabling.domain;
 
+/*  
+ * Credits: This file is built oriented with the TimeFold "Hello World" Quick Start Guide
+ */
+
 import java.util.List;
 
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;

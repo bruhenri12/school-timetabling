@@ -1,5 +1,9 @@
 package org.acme.schooltimetabling.domain;
 
+/*  
+ * Credits: This file is built oriented with the TimeFold "Hello World" Quick Start Guide
+ */
+
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 

@@ -1,5 +1,9 @@
 package org.acme.schooltimetabling;
 
+/*  
+ * Credits: This file is built oriented with the TimeFold "Hello World" Quick Start Guide
+ */
+
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalTime;
@@ -30,7 +34,6 @@ public class TimetableApp {
                 .withSolutionClass(Timetable.class)
                 .withEntityClasses(Lesson.class)
                 .withConstraintProviderClass(TimetableConstraintProvider.class)
-                // The solver runs only for 5 seconds on this small dataset.
                 // It's recommended to run for at least 5 minutes ("5m") otherwise.
                 .withTerminationSpentLimit(Duration.ofSeconds(15)));
 
