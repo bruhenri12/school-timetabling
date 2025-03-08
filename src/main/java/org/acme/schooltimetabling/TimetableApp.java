@@ -39,7 +39,7 @@ public class TimetableApp {
                         .withTerminationSpentLimit(Duration.ofSeconds(5)));
 
                 // Load the problem
-                Timetable problem = generateDemoData();
+                Timetable problem = generateProblemTable();
 
                 // Solve the problem
                 Solver<Timetable> solver = solverFactory.buildSolver();
@@ -49,7 +49,7 @@ public class TimetableApp {
                 printTimetable(solution);
         }
 
-        public static Timetable generateDemoData() {
+        public static Timetable generateProblemTable() {
                 List<Timeslot> timeslots = new ArrayList<>(10);
                 timeslots.add(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 30), LocalTime.of(9, 30)));
                 timeslots.add(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(9, 30), LocalTime.of(10, 30)));
