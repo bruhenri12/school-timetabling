@@ -1,4 +1,8 @@
 # School Timetabling
+
+## Credits
+This project was made using reference the official Timefold Solver "Hello World" Quick Start tutorial.
+
 ## Specification
 Your service will assign Lesson instances to Timeslot and Room instances automatically by using AI to adhere to the following hard and soft scheduling constraints:
 

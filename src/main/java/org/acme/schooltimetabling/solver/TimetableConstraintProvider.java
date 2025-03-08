@@ -81,7 +81,7 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 .filter((lesson1, lesson2) -> {
                     Duration between = Duration.between(lesson1.getTimeslot().getEndTime(),
                             lesson2.getTimeslot().getStartTime());
-                    return !between.isNegative() && between.compareTo(Duration.ofMinutes(30)) <= 0;
+                    return !between.isNegative() && between.compareTo(Duration.ofMinutes(10)) <= 0;
                 })
                 .reward(HardSoftScore.ONE_SOFT)
                 .asConstraint("Teacher sequential preference");

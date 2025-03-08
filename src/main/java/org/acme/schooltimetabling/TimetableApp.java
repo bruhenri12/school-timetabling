@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import ai.timefold.solver.core.api.solver.Solver;
 import ai.timefold.solver.core.api.solver.SolverFactory;
 import ai.timefold.solver.core.config.solver.SolverConfig;
+
 import org.acme.schooltimetabling.domain.Lesson;
 import org.acme.schooltimetabling.domain.Room;
 import org.acme.schooltimetabling.domain.Timeslot;
@@ -94,16 +95,28 @@ public class TimetableApp {
         return new Timetable(timeslots, rooms, lessons);
     }
 
+    /**
+     * Prints the timetable in a formatted manner.
+     *
+     * @param timetable the timetable to print
+     */
     private static void printTimetable(Timetable timetable) {
         LOGGER.info("");
         List<Room> rooms = timetable.getRooms();
         List<Lesson> lessons = timetable.getLessons();
+        
+        // Group lessons by timeslot and room
         Map<Timeslot, Map<Room, List<Lesson>>> lessonMap = lessons.stream()
                 .filter(lesson -> lesson.getTimeslot() != null && lesson.getRoom() != null)
                 .collect(Collectors.groupingBy(Lesson::getTimeslot, Collectors.groupingBy(Lesson::getRoom)));
+        
+        // Print header
         LOGGER.info("|            | " + rooms.stream()
-                .map(room -> String.format("%-10s", room.getName())).collect(Collectors.joining(" | ")) + " |");
+                .map(room -> String.format("%-10s", room.getName()))
+                .collect(Collectors.joining(" | ")) + " |");
         LOGGER.info("|" + "------------|".repeat(rooms.size() + 1));
+
+        // Print each timeslot row
         for (Timeslot timeslot : timetable.getTimeslots()) {
             List<List<Lesson>> cells = rooms.stream()
                     .map(room -> {
@@ -115,24 +128,32 @@ public class TimetableApp {
                         return Objects.requireNonNullElse(cellLessons, Collections.<Lesson>emptyList());
                     }).toList();
 
+            // Print timeslot and subjects
             LOGGER.info("| " + String.format("%-10s",
                     timeslot.getDayOfWeek().toString().substring(0, 3) + " " + timeslot.getStartTime()) + " | "
                     + cells.stream().map(cellLessons -> String.format("%-10s",
                             cellLessons.stream().map(Lesson::getSubject).collect(Collectors.joining(", "))))
                             .collect(Collectors.joining(" | "))
                     + " |");
+            
+            // Print teachers
             LOGGER.info("|            | "
                     + cells.stream().map(cellLessons -> String.format("%-10s",
                             cellLessons.stream().map(Lesson::getTeacher).collect(Collectors.joining(", "))))
                             .collect(Collectors.joining(" | "))
                     + " |");
+            
+            // Print student groups
             LOGGER.info("|            | "
                     + cells.stream().map(cellLessons -> String.format("%-10s",
                             cellLessons.stream().map(Lesson::getStudentGroup).collect(Collectors.joining(", "))))
                             .collect(Collectors.joining(" | "))
                     + " |");
+            
             LOGGER.info("|" + "------------|".repeat(rooms.size() + 1));
         }
+
+        // Print unassigned lessons
         List<Lesson> unassignedLessons = lessons.stream()
                 .filter(lesson -> lesson.getTimeslot() == null || lesson.getRoom() == null)
                 .toList();
