@@ -5,7 +5,9 @@ package org.acme.schooltimetabling.solver;
  */
 
 import org.acme.schooltimetabling.domain.Lesson;
-import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
+//import ai.timefold.solver.core.api.score.buildin.hardmediumsoft.HardMediumSoftScore;
+
+import ai.timefold.solver.core.api.score.buildin.hardmediumsoft.HardMediumSoftScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
@@ -22,6 +24,8 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 roomConflict(constraintFactory),
                 teacherConflict(constraintFactory),
                 studentGroupConflict(constraintFactory),
+                // Medium constraints
+                //subjectDayPartPreference(constraintFactory),
                 // Soft constraints
                 teacherRoomPreference(constraintFactory),
                 teacherSequentialPreference(constraintFactory)
@@ -38,7 +42,7 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                         // ... in the same room ...
                         Joiners.equal(Lesson::getRoom))
                 // ... and penalize each pair with a hard weight.
-                .penalize(HardSoftScore.ONE_HARD)
+                .penalize(HardMediumSoftScore.ONE_HARD)
                 .asConstraint("Room conflict");
     }
 
@@ -48,7 +52,7 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 .forEachUniquePair(Lesson.class,
                         Joiners.equal(Lesson::getTimeslot),
                         Joiners.equal(Lesson::getTeacher))
-                .penalize(HardSoftScore.ONE_HARD)
+                .penalize(HardMediumSoftScore.ONE_HARD)
                 .asConstraint("Teacher conflict");
     }
 
@@ -58,8 +62,18 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 .forEachUniquePair(Lesson.class,
                         Joiners.equal(Lesson::getTimeslot),
                         Joiners.equal(Lesson::getStudentGroup))
-                .penalize(HardSoftScore.ONE_HARD)
+                .penalize(HardMediumSoftScore.ONE_HARD)
                 .asConstraint("Student group conflict");
+    }
+
+    Constraint subjectDayPartPreference(ConstraintFactory constraintFactory) {
+        // A subject prefers to teach in the same part of the day.
+        return constraintFactory
+                .forEachUniquePair(Lesson.class,
+                        Joiners.equal(Lesson::getSubject))
+                .filter((lesson1, lesson2) -> lesson1.getTimeslot().getDayPart() != lesson2.getTimeslot().getDayPart())
+                .penalize(HardMediumSoftScore.ONE_MEDIUM)
+                .asConstraint("Subject day part preference");
     }
 
     Constraint teacherRoomPreference(ConstraintFactory constraintFactory) {
@@ -67,7 +81,7 @@ public class TimetableConstraintProvider implements ConstraintProvider {
         return constraintFactory
                 .forEachUniquePair(Lesson.class, Joiners.equal(Lesson::getTeacher))
                 .filter((lesson1, lesson2) -> lesson1.getRoom() != lesson2.getRoom())
-                .penalize(HardSoftScore.ONE_SOFT)
+                .penalize(HardMediumSoftScore.ONE_SOFT)
                 .asConstraint("Teacher room preference");
     }
 
@@ -83,7 +97,7 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                             lesson2.getTimeslot().getStartTime());
                     return !between.isNegative() && between.compareTo(Duration.ofMinutes(10)) <= 0;
                 })
-                .reward(HardSoftScore.ONE_SOFT)
+                .reward(HardMediumSoftScore.ONE_SOFT)
                 .asConstraint("Teacher sequential preference");
     }
 }

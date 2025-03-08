@@ -32,10 +32,23 @@ public class Timeslot {
 
     public LocalTime getEndTime() {
         return endTime;
-    }
+        }
 
-    @Override
-    public String toString() {
+        public int getDayPart() {
+            int hour = startTime.getHour();
+            if (hour >= 0 && hour < 6) {
+                return 0; // After midnight
+            } else if (hour >= 6 && hour < 12) {
+                return 1; // Morning
+            } else if (hour >= 12 && hour < 18) {
+                return 2; // Afternoon
+            } else {
+                return 3; // Evening
+            }
+        }
+
+        @Override
+        public String toString() {
         return dayOfWeek + " " + startTime;
     }
 
